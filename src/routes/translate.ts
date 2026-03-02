@@ -3,6 +3,7 @@ import express from "express";
 import { error } from "node:console";
 import { db } from "../db/connection";
 import { translations } from "../db/schema";
+import validateTranslation from "../middleware/validateTranslation";
 
 const router = express.Router();
 
@@ -10,7 +11,7 @@ const router = express.Router();
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // translate endpoint
-router.post("/", async (req, res) => {
+router.post("/", validateTranslation, async (req, res) => {
   try {
     if (!req.body) {
       return res.status(400).json({ error: "Missing request body" });

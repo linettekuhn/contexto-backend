@@ -6,10 +6,10 @@ import testInsert from "./db/test-translation";
 import translateRouter from "./routes/translate";
 import rateLimit from "express-rate-limit";
 
-// rate limiting to 100 requests per IP per 15 minute window
+// rate limiting to 30 requests per IP per 15 minute window
 const limiter = rateLimit({
-  windowMs: 2 * 60 * 1000,
-  max: 100,
+  windowMs: 15 * 60 * 1000,
+  max: 30,
 });
 
 dotenv.config();
