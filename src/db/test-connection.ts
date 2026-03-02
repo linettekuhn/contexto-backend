@@ -13,7 +13,5 @@ export default async function testConnection() {
     console.log("Connected! Server time:", res.rows[0]);
   } catch (err) {
     console.error("Connection error:", err);
-  } finally {
-    await pool.end();
   }
 }
