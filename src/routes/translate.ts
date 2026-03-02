@@ -15,9 +15,10 @@ router.post("/", async (req, res) => {
     if (!req.body) {
       return res.status(400).json({ error: "Missing request body" });
     }
-    const { original_text, target_language, dialect } = req.body;
+    const { original_text, source_language, target_language, dialect } =
+      req.body;
 
-    if (!original_text || !target_language || !dialect) {
+    if (!original_text || !target_language || !dialect || !source_language) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -32,7 +33,7 @@ router.post("/", async (req, res) => {
         {
           role: "system",
           content: `You are an expert translator specializing in ${dialect} dialect as spoken by native speakers in ${target_language}. 
-            Translate the following text into authentic ${dialect} ${target_language}. Use:
+            Translate the following text in ${source_language} into authentic ${dialect} ${target_language}. Use:
             - Contemporary colloquial expressions and slang
             - Natural grammar patterns specific to this dialect
             - Local idioms and phrases
@@ -53,14 +54,13 @@ router.post("/", async (req, res) => {
       return res.status(500).json({ error: "Failed to generate translation" });
     }
 
-    // TODO: fix placeholders
     // save translation to database
     const inserted = await db
       .insert(translations)
       .values({
         original_text,
         translated_text,
-        source_language: "en",
+        source_language,
         target_language,
         dialect,
       })
