@@ -11,6 +11,7 @@ const translationSchema = z.object({
   source_language: z.string().trim().min(1),
   target_language: z.string().trim().min(1),
   dialect: z.string().trim().min(1),
+  formality: z.number().min(0).max(1).default(0.5),
 });
 
 // middleware to validate translation request body

@@ -16,15 +16,23 @@ router.post("/", validateTranslation, async (req, res) => {
     if (!req.body) {
       return res.status(400).json({ error: "Missing request body" });
     }
-    const { original_text, source_language, target_language, dialect } =
-      req.body;
+    const {
+      original_text,
+      source_language,
+      target_language,
+      dialect,
+      formality,
+    } = req.body;
 
-    if (!original_text || !target_language || !dialect || !source_language) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    if (original_text.length > 500) {
-      return res.status(400).json({ error: "Text too long" });
+    // formality description
+    let formalityText = "";
+    if (formality <= 0.33) {
+      formalityText = "Use formal grammar and standard expressions.";
+    } else if (formality <= 0.66) {
+      formalityText = "Use natural everyday speech.";
+    } else {
+      formalityText =
+        "Use heavy slang, informal speech, and dialect-specific expressions.";
     }
 
     // call GPT-4o mini to translate
@@ -35,10 +43,7 @@ router.post("/", validateTranslation, async (req, res) => {
           role: "system",
           content: `You are an expert translator specializing in ${dialect} dialect as spoken by native speakers in ${target_language}. 
             Translate the following text in ${source_language} into authentic ${dialect} ${target_language}. Use:
-            - Contemporary colloquial expressions and slang
-            - Natural grammar patterns specific to this dialect
-            - Local idioms and phrases
-            - The rhythm and flow of everyday speech
+            ${formalityText}
 
             Output ONLY the translated text with no explanations, notes, or additional commentary.`,
         },
