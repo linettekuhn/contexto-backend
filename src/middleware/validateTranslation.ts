@@ -22,9 +22,14 @@ const validateTranslation = (
   const result = translationSchema.safeParse(req.body);
 
   if (!result.success) {
+    const { formErrors, fieldErrors } = z.flattenError(result.error);
+
     return res.status(400).json({
       error: "Invalid input",
-      details: z.prettifyError(result.error),
+      details: {
+        formErrors,
+        fieldErrors,
+      },
     });
   }
 
