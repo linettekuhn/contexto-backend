@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { z, treeifyError } from "zod";
+import { z } from "zod";
 import sanitizeHtml from "sanitize-html";
 
 const translationSchema = z.object({
@@ -24,7 +24,7 @@ const validateTranslation = (
   if (!result.success) {
     return res.status(400).json({
       error: "Invalid input",
-      details: z.treeifyError(result.error),
+      details: z.prettifyError(result.error),
     });
   }
 
