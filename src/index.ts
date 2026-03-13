@@ -5,6 +5,7 @@ import translateRouter from "./routes/translate.routes";
 import { translationLimiter } from "./middleware/rateLimiter";
 import { env } from "./config/env";
 import { requestLogger } from "./middleware/requestLogger";
+import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
 
@@ -15,6 +16,9 @@ app.use(express.json());
 
 // translation router
 app.use("/translate", translationLimiter, translateRouter);
+
+// error middleware (last)
+app.use(errorHandler);
 
 app.get("/", (req, res) => {
   res.send("Contexto backend is running");
