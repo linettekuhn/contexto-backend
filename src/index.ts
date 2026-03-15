@@ -30,6 +30,11 @@ app.get("/", (req, res) => {
   res.send("Contexto backend is running");
 });
 
+app.get("/test", (req, res) => {
+  testConnection();
+  res.send("Testing");
+});
+
 app.listen(env.PORT, () => {
   console.log(`Contexto API running on port ${env.PORT}`);
 });

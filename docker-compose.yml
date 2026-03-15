@@ -11,7 +11,8 @@ services:
       - .env
     # ensure db starts first
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     # pull postrgresql image
@@ -27,6 +28,12 @@ services:
     # store database in volume outside container
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    # check if postgres is ready
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
