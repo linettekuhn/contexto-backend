@@ -32,5 +32,4 @@ app.get("/", (req, res) => {
 
 app.listen(env.PORT, () => {
   console.log(`Contexto API running on port ${env.PORT}`);
-  testConnection();
 });
