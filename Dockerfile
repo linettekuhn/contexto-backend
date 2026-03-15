@@ -1,0 +1,23 @@
+# base image
+FROM node:20
+
+# working directory
+WORKDIR /app
+
+# copy dependency files
+COPY package*.json ./
+
+# install dependencies
+RUN npm install
+
+# copy entire backend into container
+COPY . .
+
+# build typescript
+RUN npm run build
+
+# expose port (where container expects traffic)
+EXPOSE 3009
+
+# start server (default command that runs when container starts)
+CMD ["node", "dist/index.js"]
