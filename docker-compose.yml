@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  # define services
+  api:
+    # builds container from dockerfile
+    build: .
+    # map host port to container port
+    ports:
+      - "3009:3009"
+    # load environment variables
+    env_file:
+      - .env
+    # ensure db starts first
+    depends_on:
+      - db
+
+  db:
+    # pull postrgresql image
+    image: postgres:16
+    # set "login" for database
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: contexto_dev
+    # store database in volume outside container
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  volumes:
+    postgres_data:
