@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   # define services
   api:
@@ -18,14 +16,17 @@ services:
   db:
     # pull postrgresql image
     image: postgres:16
+    # load environment variables
+    env_file:
+      - .env
     # set "login" for database
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: contexto_dev
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     # store database in volume outside container
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  volumes:
-    postgres_data:
+volumes:
+  postgres_data:
