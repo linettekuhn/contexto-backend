@@ -59,10 +59,8 @@ describe("registerUser()", () => {
         returning: vi.fn().mockResolvedValue([fakeUser]),
       }),
     } as any);
-
     // ACT
     await registerUser("test@example.com", "plaintext_password");
-
     // ASSERT
     expect(mockHashPassword).toHaveBeenCalledWith("plaintext_password");
     expect(mockHashPassword).not.toHaveBeenCalledWith("hashed_password_xyz");
@@ -72,19 +70,17 @@ describe("registerUser()", () => {
     // ARRANGE
     mockHashPassword.mockResolvedValue("hashed_password_xyz");
     const valuesMock = vi.fn().mockReturnValue({
-        returning: vi.fn().mockResolvedValue([fakeUser]);
+      returning: vi.fn().mockResolvedValue([fakeUser]),
     });
     mockDb.insert.mockReturnValue({
       values: valuesMock,
     } as any);
-
     // ACT
     await registerUser("test@example.com", "plaintext_password");
-
     // ASSERT
     expect(valuesMock).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password_hash: 'hashed_password_xyz',
+      email: "test@example.com",
+      password_hash: "hashed_password_xyz",
     });
   });
 
@@ -96,13 +92,71 @@ describe("registerUser()", () => {
         returning: vi.fn().mockResolvedValue([fakeUser]),
       }),
     } as any);
-
     // ACT
-    const result=await registerUser("test@example.com", "plaintext_password");
-
+    const result = await registerUser("test@example.com", "plaintext_password");
     // ASSERT
     expect(result).toEqual(fakeUser);
   });
 });
 
+// login unit tests
+describe("loginUser()", () => {
+  // helper select db mock
+  function mockDbSelectReturnsUser(user = fakeUser) {
+    mockDb.select.mockReturnValue({
+      from: vi.fn().mockReturnValue({
+        where: vi.fn().mockResolvedValue([user]),
+      }),
+    } as any);
+  }
 
+  function mockDbInsertSuccess() {
+    mockDb.insert.mockReturnValue({
+      values: vi.fn().mockResolvedValue(undefined),
+    } as any);
+  }
+
+  it('throws "Invalid credentials" when no user found with that email', async () => {
+    // ARRANGE
+    mockDb.select.mockReturnValue({
+      from: vi.fn().mockReturnValue({
+        where: vi.fn().mockResolvedValue([]),
+      }),
+    } as any);
+
+    // ASSERT
+    await expect(loginUser("nobody@example.com", "password")).rejects.toThrow(
+      "Invalid credentials",
+    );
+  });
+
+  it('throws "Invalid credentials" when password is wrong', async () => {
+    // ARRANGE
+    mockDbSelectReturnsUser();
+    mockVerifyPassword.mockResolvedValue(false);
+
+    // ASSERT
+    await expect(
+      loginUser("test@example.com", "wrong_password"),
+    ).rejects.toThrow("Invalid credentials");
+  });
+
+  it("returns accessToken, refreshToken, and user on success", async () => {
+    // ARRANGE
+    mockDbSelectReturnsUser();
+    mockVerifyPassword.mockResolvedValue(true);
+    mockGenerateAccessToken.mockResolvedValue("access_token_abc");
+    mockGenerateRefreshToken.mockResolvedValue("refresh_token_xyz");
+    mockDbInsertSuccess();
+
+    // ACT
+    const result = await loginUser("test@example.com", "correct_password");
+
+    // ASSERT
+    expect(result).toEqual({
+      accessToken: "access_token_abc",
+      refreshToken: "refresh_token_xyz",
+      user: fakeUser,
+    });
+  });
+});
