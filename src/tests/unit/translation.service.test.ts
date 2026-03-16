@@ -125,4 +125,43 @@ describe("transalteText()", () => {
       expect(systemPrompt).toContain("natural everyday speech");
     });
   });
+
+  // openai call tests
+  describe("OpenAI call", () => {
+    it("sends the original text as the user message", async () => {
+      // ARRANGE
+      mockOpenAIReturns("Translated");
+      mockDbInsertReturns();
+      // ACT
+      await translateText(baseRequest);
+      // ASSERT
+      const userMessage = mockOpenAI.mock.calls[0][0].messages[1];
+      expect(userMessage).toEqual({
+        role: "user",
+        content: "Hello, how are you?",
+      });
+    });
+
+    it("includes the dialect and target language in the system prompt", async () => {
+      // ARRANGE
+      mockOpenAIReturns("Translated");
+      mockDbInsertReturns();
+      // ACT
+      await translateText(baseRequest);
+      // ASSERT
+      const systemPrompt = mockOpenAI.mock.calls[0][0].messages[0].content;
+      expect(systemPrompt).toContain("Mexican");
+      expect(systemPrompt).toContain("Spanish");
+    });
+
+    it("uses the gpt-4o-mini model", async () => {
+      // ARRANGE
+      mockOpenAIReturns("Translated");
+      mockDbInsertReturns();
+      // ACT
+      await translateText(baseRequest);
+      // ASSERT
+      expect(mockOpenAI.mock.calls[0][0].model).toBe("gpt-4o-mini");
+    });
+  });
 });
