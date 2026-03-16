@@ -164,4 +164,20 @@ describe("transalteText()", () => {
       expect(mockOpenAI.mock.calls[0][0].model).toBe("gpt-4o-mini");
     });
   });
+
+  // return value tests
+  describe("return value", () => {
+    it("returns the translated text and the DB record", async () => {
+      // ARRANGE
+      mockOpenAIReturns("¿Qué onda, cómo estás?");
+      mockDbInsertReturns();
+      // ACT
+      const result = await translateText(baseRequest);
+      // ASSERT
+      expect(result).toEqual({
+        translation: "¿Qué onda, cómo estás?",
+        db_record: fakeDbRecord,
+      });
+    });
+  });
 });
