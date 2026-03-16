@@ -160,3 +160,82 @@ describe("loginUser()", () => {
     });
   });
 });
+
+// refreshTokens unit tests
+describe("refreshToken", () => {
+  // mock token record
+  const fakeTokenRecord = {
+    id: "token-record-456",
+    user_id: fakeUser.id,
+    token: "old_refresh_token",
+    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  };
+
+  // helper select db mock
+  function mockDbSelectReturnsToken(record = fakeTokenRecord) {
+    mockDb.select.mockReturnValue({
+      from: vi.fn().mockReturnValue({
+        where: vi.fn().mockResolvedValue([record]),
+      }),
+    } as any);
+  }
+
+  function mockDbDeleteSuccess() {
+    mockDb.delete.mockReturnValue({
+      where: vi.fn().mockResolvedValue(undefined),
+    } as any);
+  }
+
+  function mockDbInsertSuccess() {
+    mockDb.insert.mockReturnValue({
+      values: vi.fn().mockResolvedValue(undefined),
+    } as any);
+  }
+
+  it('throws "Invalid refresh token" when token not found in DB', async () => {
+    // ARRANGE
+    mockDb.select.mockReturnValue({
+      from: vi.fn().mockReturnValue({
+        where: vi.fn().mockResolvedValue([]),
+      }),
+    } as any);
+
+    // ASSERT
+    await expect(refreshToken("nonexistent_token")).rejects.toThrow(
+      "Invalid refresh token",
+    );
+  });
+
+  it("deletes the old refresh token", async () => {
+    // ARRANGE
+    mockDbSelectReturnsToken();
+    mockGenerateAccessToken.mockReturnValue("new_access_token");
+    mockGenerateRefreshToken.mockReturnValue("new_refresh_token");
+    mockDbDeleteSuccess();
+    mockDbInsertSuccess();
+
+    // ACT
+    await refreshToken("old_refresh_token");
+
+    // ASSERT
+    expect(mockDb.delete).toHaveBeenCalled();
+  });
+
+  it("returns new access and refresh tokens", async () => {
+    // ARRANGE
+    mockDbSelectReturnsToken();
+    mockGenerateAccessToken.mockReturnValue("new_access_token");
+    mockGenerateRefreshToken.mockReturnValue("new_refresh_token");
+    mockDbDeleteSuccess();
+    mockDbInsertSuccess();
+
+    // ACT
+    const result = await refreshToken("old_refresh_token");
+
+    // ASSERT
+    expect(result).toEqual({
+      newAccessToken: "new_access_token",
+      newRefreshToken: "new_refresh_token",
+    });
+  });
+});
