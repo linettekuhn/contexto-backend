@@ -2,7 +2,11 @@ import { vi, beforeEach, describe, it, expect } from "vitest";
 import { db } from "../../db/connection";
 import { refresh_tokens, users } from "../../db/schema";
 import { eq } from "drizzle-orm";
-import { loginUser, registerUser } from "../../services/auth.service";
+import {
+  loginUser,
+  refreshToken,
+  registerUser,
+} from "../../services/auth.service";
 
 // reset tables befoer each test
 beforeEach(async () => {
@@ -84,5 +88,57 @@ describe("loginUser()", () => {
     await expect(
       loginUser("nobody@example.com", "password123"),
     ).rejects.toThrow("Invalid credentials");
+  });
+});
+
+// refreshToken integration tests
+describe("loginUser()", () => {
+  let oldRefreshToken: string;
+
+  beforeEach(async () => {
+    await registerUser("test@example.com", "password123");
+    const result = await loginUser("test@example.com", "password123");
+    oldRefreshToken = result.refreshToken;
+  });
+
+  it("returns new access and refresh tokens", async () => {
+    // ACT
+    const result = await refreshToken(oldRefreshToken);
+
+    // ASSERT
+    expect(result.newAccessToken).toBeDefined();
+    expect(result.newRefreshToken).toBeDefined();
+  });
+
+  it("deletes the old refresh token from the DB", async () => {
+    // ACT
+    await refreshToken(oldRefreshToken);
+
+    const rows = await db
+      .select()
+      .from(refresh_tokens)
+      .where(eq(refresh_tokens.token, oldRefreshToken));
+
+    // ASSERT
+    expect(rows).toHaveLength(0);
+  });
+
+  it("saves the new refresh token to the DB", async () => {
+    // ACT
+    const result = await refreshToken(oldRefreshToken);
+
+    const rows = await db
+      .select()
+      .from(refresh_tokens)
+      .where(eq(refresh_tokens.token, result.newRefreshToken));
+
+    // ASSERT
+    expect(rows).toHaveLength(1);
+  });
+
+  it("throws Invalid refresh token for a token not in the DB", async () => {
+    await expect(refreshToken("fake_token")).rejects.toThrow(
+      "Invalid refresh token",
+    );
   });
 });
