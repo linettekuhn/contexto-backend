@@ -1,7 +1,7 @@
 import { vi, beforeEach, describe, it, expect } from "vitest";
 
 // mock imports
-vi.mock("../db/connection", () => ({
+vi.mock("../../db/connection", () => ({
   // define mock functions
   db: {
     insert: vi.fn(),
@@ -10,12 +10,12 @@ vi.mock("../db/connection", () => ({
   },
 }));
 
-vi.mock("../utils/password", () => ({
+vi.mock("../../utils/password", () => ({
   hashPassword: vi.fn(),
   verifyPassword: vi.fn(),
 }));
 
-vi.mock("../utils/jwt", () => ({
+vi.mock("../../utils/jwt", () => ({
   generateAccessToken: vi.fn(),
   generateRefreshToken: vi.fn(),
 }));

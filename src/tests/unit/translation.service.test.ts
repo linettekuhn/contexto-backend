@@ -1,7 +1,7 @@
 import { vi, beforeEach, describe, it, expect } from "vitest";
 
 // mock imports
-vi.mock("../utils/openaiClient", () => ({
+vi.mock("../../utils/openaiClient", () => ({
   openai: {
     chat: {
       completions: {
@@ -11,7 +11,7 @@ vi.mock("../utils/openaiClient", () => ({
   },
 }));
 
-vi.mock("../db/connection", () => ({
+vi.mock("../../db/connection", () => ({
   // define mock functions
   db: {
     insert: vi.fn(),
