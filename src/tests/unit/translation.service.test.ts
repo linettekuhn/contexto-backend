@@ -27,7 +27,6 @@ const mockOpenAI = vi.mocked(openai.chat.completions.create);
 const mockDb = vi.mocked(db);
 
 // mock data
-
 const baseRequest = {
   original_text: "Hello, how are you?",
   source_language: "English",
