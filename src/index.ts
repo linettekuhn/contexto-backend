@@ -15,7 +15,12 @@ const app = express();
 // middleware
 app.use(cookieParser());
 app.use(requestLogger);
-app.use(cors());
+app.use(
+  cors({
+    origin: env.ALLOWED_ORIGIN,
+    credentials: true,
+  }),
+);
 app.use(express.json());
 
 // translation router
