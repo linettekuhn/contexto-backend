@@ -53,6 +53,14 @@ export async function refreshToken(oldToken: string) {
   const newAccessToken = generateAccessToken(tokenRecord.user_id);
   const newRefreshToken = generateRefreshToken(tokenRecord.user_id);
 
+  // get user
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, tokenRecord.user_id));
+
+  if (!user) throw new Error("User not found");
+
   // delete old refresh token
   await db.delete(refresh_tokens).where(eq(refresh_tokens.id, tokenRecord.id));
 
@@ -63,5 +71,11 @@ export async function refreshToken(oldToken: string) {
     expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   });
 
-  return { newAccessToken, newRefreshToken };
+  return {
+    newAccessToken,
+    newRefreshToken,
+    user: {
+      email: user.email,
+    },
+  };
 }

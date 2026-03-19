@@ -40,7 +40,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 export async function refresh(req: Request, res: Response, next: NextFunction) {
   try {
     const oldToken = req.cookies.refreshToken;
-    const { newAccessToken, newRefreshToken } =
+    const { newAccessToken, newRefreshToken, user } =
       await AuthService.refreshToken(oldToken);
 
     res.cookie("refreshToken", newRefreshToken, {
@@ -50,7 +50,10 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({ newAccessToken });
+    res.json({
+      accessToken: newAccessToken,
+      user: { email: user.email },
+    });
   } catch (error) {
     next(error);
   }
