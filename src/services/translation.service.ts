@@ -3,7 +3,7 @@ import { db } from "../db/connection";
 import { translations } from "../db/schema";
 import { TranslationRequest } from "../types/translation.types";
 
-export async function translateText(data: TranslationRequest) {
+export async function translateText(data: TranslationRequest, userId?: number) {
   const {
     original_text,
     source_language,
@@ -55,6 +55,7 @@ Output ONLY the translated text.`,
       source_language,
       target_language,
       dialect,
+      user_id: userId ?? null,
     })
     .returning();
 
