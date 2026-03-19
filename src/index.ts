@@ -3,6 +3,7 @@ import cors from "cors";
 import testConnection from "./db/test-connection";
 import translateRouter from "./routes/translate.routes";
 import authRouter from "./routes/auth.routes";
+import historyRouter from "./routes/history.routes";
 import { translationLimiter } from "./middleware/rateLimiter";
 import { env } from "./config/env";
 import { requestLogger } from "./middleware/requestLogger";
@@ -22,6 +23,9 @@ app.use("/translate", translationLimiter, translateRouter);
 
 // auth router
 app.use("/auth", authRouter);
+
+// history router
+app.use("/history", historyRouter);
 
 // error middleware (last)
 app.use(errorHandler);
