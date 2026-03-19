@@ -14,7 +14,9 @@ vi.mock("../../utils/openaiClient", () => ({
 import { openai } from "../../utils/openaiClient";
 import { translateText } from "../../services/translation.service";
 import { db } from "../../db/connection";
-import { translations } from "../../db/schema";
+import { refresh_tokens, translations, users } from "../../db/schema";
+
+let testUserId: number;
 
 // mock functions with correct types
 const mockOpenAI = vi.mocked(openai.chat.completions.create);
@@ -37,6 +39,19 @@ const baseRequest = {
 beforeEach(async () => {
   vi.clearAllMocks();
   await db.delete(translations);
+  await db.delete(refresh_tokens);
+  await db.delete(users);
+
+  // insert a real user and capture the generated id
+  const [user] = await db
+    .insert(users)
+    .values({
+      email: "test@example.com",
+      password_hash: "fakehash",
+    })
+    .returning();
+
+  testUserId = user.id;
 });
 
 // translateText integration tests
@@ -82,5 +97,23 @@ describe("translateText()", () => {
 
     const rows = await db.select().from(translations);
     expect(rows).toHaveLength(0);
+  });
+
+  it("persists user_id when authenticated", async () => {
+    mockOpenAIReturns("¿Qué onda, cómo estás?");
+
+    await translateText(baseRequest, testUserId);
+
+    const [row] = await db.select().from(translations);
+    expect(row.user_id).toBe(testUserId);
+  });
+
+  it("persists null user_id when no userId provided", async () => {
+    mockOpenAIReturns("¿Qué onda, cómo estás?");
+
+    await translateText(baseRequest);
+
+    const [row] = await db.select().from(translations);
+    expect(row.user_id).toBeNull();
   });
 });

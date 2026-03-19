@@ -66,7 +66,7 @@ beforeEach(() => {
 });
 
 // translateText unit tests
-describe("transalteText()", () => {
+describe("translateText()", () => {
   // formality prompt selection tests
   describe("formality prompt selection", () => {
     it("uses formal language prompt when formality <= 0.33", async () => {
@@ -178,5 +178,31 @@ describe("transalteText()", () => {
         db_record: fakeDbRecord,
       });
     });
+  });
+
+  describe("user_id handling", () => {
+    it("saves user_id when provided", async () => {
+      // ARRANGE
+      mockOpenAIReturns("Hola");
+      mockDbInsertReturns();
+      // ACT
+      await translateText(baseRequest, 42);
+      // ASSERT
+      const insertValues =
+        mockDb.insert.mock.results[0].value.values.mock.calls[0][0];
+      expect(insertValues.user_id).toBe(42);
+    });
+  });
+
+  it("saves null user_id when not provided", async () => {
+    // ARRANGE
+    mockOpenAIReturns("Hola");
+    mockDbInsertReturns();
+    // ACT
+    await translateText(baseRequest);
+    // ASSERT
+    const insertValues =
+      mockDb.insert.mock.results[0].value.values.mock.calls[0][0];
+    expect(insertValues.user_id).toBeNull();
   });
 });
