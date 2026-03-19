@@ -6,6 +6,7 @@
     "dev": "cross-env NODE_ENV=development ts-node-dev --respawn --transpile-only --poll src/index.ts",
     "build": "tsc",
     "start": "cross-env NODE_ENV=production node dist/index.js",
+    "db:migrate": "drizzle-kit migrate",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"

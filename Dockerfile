@@ -29,6 +29,6 @@ CMD ["sh", "-c", "\
     sleep 1; \
   done && \
   echo 'Postgres ready.' && \
-  npx drizzle-kit push && \
+  npm run db:migrate && \
   node dist/index.js \
 "]
