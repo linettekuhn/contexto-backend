@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "../db/connection";
 import { translations } from "../db/schema";
 
@@ -23,6 +23,6 @@ export const deleteHistoryEntry = async (
   return db
     .delete(translations)
     .where(
-      eq(translations.id, translationId) && eq(translations.user_id, userId),
+      and(eq(translations.id, translationId), eq(translations.user_id, userId)),
     );
 };

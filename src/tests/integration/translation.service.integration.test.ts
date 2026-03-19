@@ -46,7 +46,7 @@ beforeEach(async () => {
   const [user] = await db
     .insert(users)
     .values({
-      email: "test@example.com",
+      email: "translation-test@example.com",
       password_hash: "fakehash",
     })
     .returning();

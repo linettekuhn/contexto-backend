@@ -1,6 +1,6 @@
 import { vi, beforeEach, describe, it, expect } from "vitest";
 import { db } from "../../db/connection";
-import { refresh_tokens, users } from "../../db/schema";
+import { refresh_tokens, translations, users } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import {
   loginUser,
@@ -10,6 +10,7 @@ import {
 
 // reset tables befoer each test
 beforeEach(async () => {
+  await db.delete(translations);
   await db.delete(refresh_tokens);
   await db.delete(users);
 });
