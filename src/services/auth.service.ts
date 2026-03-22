@@ -6,6 +6,7 @@ import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
 import { AppError } from "../utils/AppError";
 
 export async function registerUser(
+  name: string,
   email: string,
   password: string,
 ): Promise<typeof users.$inferSelect> {
@@ -16,7 +17,7 @@ export async function registerUser(
     // store in db and return stored user
     const [user] = await db
       .insert(users)
-      .values({ email, password_hash })
+      .values({ name, email, password_hash })
       .returning();
 
     if (!user) throw new AppError(500, "Failed to create user");

@@ -20,6 +20,7 @@ export const translations = pgTable("translations", {
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
+  name: varchar("name", { length: 50 }).notNull(),
   email: text("email").notNull().unique(),
   password_hash: text("password_hash").notNull(),
   created_at: timestamp("created_at").defaultNow(),
