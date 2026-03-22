@@ -92,6 +92,7 @@ export async function refreshToken(oldToken: string) {
     newRefreshToken,
     user: {
       email: user.email,
+      name: user.name,
     },
   };
 }

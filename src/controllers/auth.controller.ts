@@ -19,7 +19,7 @@ export async function register(
 export async function login(req: Request, res: Response, next: NextFunction) {
   try {
     const { email, password } = req.body;
-    const { accessToken, refreshToken } = await AuthService.loginUser(
+    const { accessToken, refreshToken, user } = await AuthService.loginUser(
       email,
       password,
     );
@@ -31,7 +31,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({ accessToken });
+    res.json({ accessToken, user: { email: user.email, name: user.name } });
   } catch (error) {
     next(error);
   }
@@ -52,7 +52,7 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
 
     res.json({
       accessToken: newAccessToken,
-      user: { email: user.email },
+      user: { email: user.email, name: user.name },
     });
   } catch (error) {
     next(error);
