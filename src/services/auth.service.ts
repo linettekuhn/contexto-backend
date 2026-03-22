@@ -94,3 +94,7 @@ export async function refreshToken(oldToken: string) {
     },
   };
 }
+
+export async function logoutUser(token: string) {
+  await db.delete(refresh_tokens).where(eq(refresh_tokens.token, token));
+}

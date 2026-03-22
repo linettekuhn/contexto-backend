@@ -58,3 +58,23 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
     next(error);
   }
 }
+
+export async function logout(req: Request, res: Response, next: NextFunction) {
+  try {
+    const token = req.cookies.refreshToken;
+
+    if (token) {
+      await AuthService.logoutUser(token);
+    }
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+}
