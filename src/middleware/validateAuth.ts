@@ -26,11 +26,6 @@ const registerSchema = z.object({
 const loginSchema = z.object({
   email: emailField,
   password: passwordField,
-  name: z
-    .string()
-    .trim()
-    .min(1, "Name is required")
-    .regex(/^\S+$/, "Name must be a single word"),
 });
 
 function sanitizeString(value: string): string {
