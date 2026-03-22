@@ -3,27 +3,42 @@ import { db } from "../db/connection";
 import { refresh_tokens, users } from "../db/schema";
 import { hashPassword, verifyPassword } from "../utils/password";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwt";
+import { AppError } from "../utils/AppError";
 
-export async function registerUser(email: string, password: string) {
+export async function registerUser(
+  email: string,
+  password: string,
+): Promise<typeof users.$inferSelect> {
   // create password hash
   const password_hash = await hashPassword(password);
 
-  // store in db and return stored user
-  const [user] = await db
-    .insert(users)
-    .values({ email, password_hash })
-    .returning();
-  return user;
+  try {
+    // store in db and return stored user
+    const [user] = await db
+      .insert(users)
+      .values({ email, password_hash })
+      .returning();
+
+    if (!user) throw new AppError(500, "Failed to create user");
+
+    return user;
+  } catch (error: any) {
+    // Postgres unique violation code
+    if (error.cause?.code === "23505") {
+      throw new AppError(409, "Email already registered");
+    }
+    throw error;
+  }
 }
 
 export async function loginUser(email: string, password: string) {
   // check if user with email exists
   const [user] = await db.select().from(users).where(eq(users.email, email));
-  if (!user) throw new Error("Invalid credentials");
+  if (!user) throw new AppError(401, "Invalid credentials");
 
   // verify password against user's password_hash
   const valid = await verifyPassword(password, user.password_hash);
-  if (!valid) throw new Error("Invalid credentials");
+  if (!valid) throw new AppError(401, "Invalid credentials");
 
   // generate tokens
   const accessToken = await generateAccessToken(user.id);
@@ -47,7 +62,7 @@ export async function refreshToken(oldToken: string) {
     .from(refresh_tokens)
     .where(eq(refresh_tokens.token, oldToken));
 
-  if (!tokenRecord) throw new Error("Invalid refresh token");
+  if (!tokenRecord) throw new AppError(401, "Invalid refresh token");
 
   // generate new tokens
   const newAccessToken = generateAccessToken(tokenRecord.user_id);
@@ -59,7 +74,7 @@ export async function refreshToken(oldToken: string) {
     .from(users)
     .where(eq(users.id, tokenRecord.user_id));
 
-  if (!user) throw new Error("User not found");
+  if (!user) throw new AppError(404, "User not found");
 
   // delete old refresh token
   await db.delete(refresh_tokens).where(eq(refresh_tokens.id, tokenRecord.id));

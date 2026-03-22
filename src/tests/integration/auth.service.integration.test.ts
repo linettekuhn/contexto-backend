@@ -22,8 +22,9 @@ describe("registerUser()", () => {
     const user = await registerUser("test@example.com", "password123");
 
     // ASSERT
-    expect(user.email).toBe("test@example.com");
-    expect(user.id).toBeDefined();
+    expect(user).toBeDefined();
+    expect(user?.email).toBe("test@example.com");
+    expect(user?.id).toBeDefined();
   });
 
   it("stores a hashed password, not the plain one", async () => {

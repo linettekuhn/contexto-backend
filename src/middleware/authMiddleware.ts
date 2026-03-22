@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { verifyToken } from "../utils/jwt";
 import { env } from "../config/env";
+import { AppError } from "../utils/AppError";
 
 export interface AuthRequest extends Request {
   user?: { id: number };
@@ -14,7 +15,7 @@ export function authMiddleware(
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      throw new Error("No token provided");
+      throw new AppError(401, "No token provided");
     }
 
     const token = authHeader.split(" ")[1];

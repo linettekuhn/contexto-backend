@@ -2,6 +2,7 @@ import { openai } from "../utils/openaiClient";
 import { db } from "../db/connection";
 import { translations } from "../db/schema";
 import { TranslationRequest } from "../types/translation.types";
+import { AppError } from "../utils/AppError";
 
 export async function translateText(data: TranslationRequest, userId?: number) {
   const {
@@ -44,7 +45,7 @@ Output ONLY the translated text.`,
   const translated_text = response.choices[0].message.content?.trim();
 
   if (!translated_text) {
-    throw new Error("Translation failed");
+    throw new AppError(500, "Translation failed");
   }
 
   const inserted = await db

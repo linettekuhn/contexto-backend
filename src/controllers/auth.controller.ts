@@ -10,7 +10,7 @@ export async function register(
     const { email, password } = req.body;
     const user = await AuthService.registerUser(email, password);
 
-    res.status(200).json({ id: user.id, email: user.email });
+    res.status(201).json({ id: user.id, email: user.email });
   } catch (error) {
     next(error);
   }
