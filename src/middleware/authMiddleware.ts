@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { verifyToken } from "../utils/jwt";
 import { env } from "../config/env";
 import { AppError } from "../utils/AppError";
+import jwt from "jsonwebtoken";
 
 export interface AuthRequest extends Request {
   user?: { id: number };
@@ -24,6 +25,9 @@ export function authMiddleware(
 
     next();
   } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return next(new AppError(401, "Token expired"));
+    }
     next(error);
   }
 }
