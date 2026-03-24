@@ -6,7 +6,7 @@ import authRouter from "./routes/auth.routes";
 import historyRouter from "./routes/history.routes";
 import { translationLimiter } from "./middleware/rateLimiter";
 import { env } from "./config/env";
-import { requestLogger } from "./middleware/requestLogger";
+import { requestLogger, responseBodyLogger } from "./middleware/requestLogger";
 import { errorHandler } from "./middleware/errorHandler";
 import cookieParser from "cookie-parser";
 
@@ -15,6 +15,7 @@ const app = express();
 // middleware
 app.use(cookieParser());
 app.use(requestLogger);
+app.use(responseBodyLogger);
 app.use(
   cors({
     origin: env.ALLOWED_ORIGIN,
