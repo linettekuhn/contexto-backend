@@ -1,0 +1,39 @@
+services:
+  # define services
+  api:
+    # builds container from dockerfile
+    build: .
+    # map host port to container port
+    ports:
+      - "3009:3009"
+    # load environment variables
+    env_file:
+      - .env
+    # ensure db starts first
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    # pull postrgresql image
+    image: postgres:16
+    # load environment variables
+    env_file:
+      - .env
+    # set "login" for database
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    # store database in volume outside container
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # check if postgres is ready
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

@@ -1,0 +1,34 @@
+# base image
+FROM node:20
+
+# working directory
+WORKDIR /app
+
+# install pg_isready
+RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
+
+# copy dependency files
+COPY package*.json ./
+
+# install dependencies
+RUN npm install
+
+# copy entire backend into container
+COPY . .
+
+# build typescript
+RUN npm run build
+
+# expose port (where container expects traffic)
+EXPOSE 3009
+
+# start dev server (wait until postgres is ready)
+CMD ["sh", "-c", "\
+  echo 'Waiting for postgres...' && \
+  until pg_isready -h $POSTGRES_HOST -p 5432 -U $POSTGRES_USER; do \
+    sleep 1; \
+  done && \
+  echo 'Postgres ready.' && \
+  npm run db:migrate && \
+  node dist/index.js \
+"]
