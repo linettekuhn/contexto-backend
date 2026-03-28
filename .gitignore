@@ -19,6 +19,3 @@ yarn-error.log*
 
 # TypeScript
 *.tsbuildinfo
-
-# Drizzle
-drizzle/migrations/meta/
