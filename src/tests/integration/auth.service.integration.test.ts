@@ -19,7 +19,7 @@ beforeEach(async () => {
 describe("registerUser()", () => {
   it("inserts a new user and returns them", async () => {
     // ACT
-    const user = await registerUser("test@example.com", "password123");
+    const user = await registerUser("John", "test@example.com", "password123");
 
     // ASSERT
     expect(user).toBeDefined();
@@ -29,7 +29,7 @@ describe("registerUser()", () => {
 
   it("stores a hashed password, not the plain one", async () => {
     // ACT
-    await registerUser("test@example.com", "password123");
+    await registerUser("John", "test@example.com", "password123");
     const [row] = await db
       .select()
       .from(users)
@@ -42,11 +42,11 @@ describe("registerUser()", () => {
 
   it("throws when email is a duplicate", async () => {
     // ACT
-    await registerUser("test@example.com", "password123");
+    await registerUser("John", "test@example.com", "password123");
 
     // ASSERT
     await expect(
-      registerUser("test@example.com", "password456"),
+      registerUser("John", "test@example.com", "password456"),
     ).rejects.toThrow();
   });
 });
@@ -54,7 +54,7 @@ describe("registerUser()", () => {
 // login integration tests
 describe("loginUser()", () => {
   beforeEach(async () => {
-    await registerUser("test@example.com", "password123");
+    await registerUser("John", "test@example.com", "password123");
   });
 
   it("returns accessToken, refreshToken, and user on valid credentials", async () => {
@@ -98,7 +98,7 @@ describe("loginUser()", () => {
   let oldRefreshToken: string;
 
   beforeEach(async () => {
-    await registerUser("test@example.com", "password123");
+    await registerUser("John", "test@example.com", "password123");
     const result = await loginUser("test@example.com", "password123");
     oldRefreshToken = result.refreshToken;
   });

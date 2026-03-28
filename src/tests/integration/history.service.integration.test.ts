@@ -16,13 +16,21 @@ beforeEach(async () => {
 
   const [user] = await db
     .insert(users)
-    .values({ email: "history-test@example.com", password_hash: "fakehash" })
+    .values({
+      name: "John",
+      email: "history-test@example.com",
+      password_hash: "fakehash",
+    })
     .returning();
   testUserId = user.id;
 
   const [other] = await db
     .insert(users)
-    .values({ email: "history-other@example.com", password_hash: "fakehash" })
+    .values({
+      name: "John",
+      email: "history-other@example.com",
+      password_hash: "fakehash",
+    })
     .returning();
   otherUserId = other.id;
 });

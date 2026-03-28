@@ -60,7 +60,7 @@ describe("registerUser()", () => {
       }),
     } as any);
     // ACT
-    await registerUser("test@example.com", "plaintext_password");
+    await registerUser("John", "test@example.com", "plaintext_password");
     // ASSERT
     expect(mockHashPassword).toHaveBeenCalledWith("plaintext_password");
     expect(mockHashPassword).not.toHaveBeenCalledWith("hashed_password_xyz");
@@ -76,7 +76,7 @@ describe("registerUser()", () => {
       values: valuesMock,
     } as any);
     // ACT
-    await registerUser("test@example.com", "plaintext_password");
+    await registerUser("John", "test@example.com", "plaintext_password");
     // ASSERT
     expect(valuesMock).toHaveBeenCalledWith({
       email: "test@example.com",
@@ -93,7 +93,11 @@ describe("registerUser()", () => {
       }),
     } as any);
     // ACT
-    const result = await registerUser("test@example.com", "plaintext_password");
+    const result = await registerUser(
+      "John",
+      "test@example.com",
+      "plaintext_password",
+    );
     // ASSERT
     expect(result).toEqual(fakeUser);
   });
