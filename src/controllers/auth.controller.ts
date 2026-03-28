@@ -1,5 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import * as AuthService from "../services/auth.service";
+import { env } from "../config/env";
+
+const isProduction = env.NODE_ENV === "production";
 
 export async function register(
   req: Request,
@@ -26,7 +29,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -45,7 +48,7 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
 
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -69,7 +72,7 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
 
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
       sameSite: "strict",
     });
 

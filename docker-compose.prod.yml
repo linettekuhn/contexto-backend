@@ -1,35 +1,25 @@
 services:
   # define services
   api:
-    # builds container from dev dockerfile
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
+    # builds container from dockerfile
+    build: .
     # map host port to container port
     ports:
       - "3009:3009"
     # load environment variables
     env_file:
-      - .env
-    # ensure db starts and is ready first
+      - .env.prod
+    # ensure db starts first
     depends_on:
       db:
         condition: service_healthy
-    # mount source code to hot reload
-    volumes:
-      - ./package.json:/app/package.json
-      - ./tsconfig.json:/app/tsconfig.json
-      - ./drizzle.config.ts:/app/drizzle.config.ts
-      - ./drizzle:/app/drizzle
-      - ./src:/app/src
-      - /app/node_modules
 
   db:
     # pull postrgresql image
     image: postgres:16
     # load environment variables
     env_file:
-      - .env
+      - .env.prod
     # set "login" for database
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
