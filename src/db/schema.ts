@@ -14,6 +14,7 @@ export const translations = pgTable("translations", {
   source_language: varchar("source_language", { length: 10 }).notNull(),
   target_language: varchar("target_language", { length: 10 }).notNull(),
   dialect: varchar("dialect", { length: 20 }).notNull(),
+  formality: varchar("formality", { length: 10 }).notNull().default("neutral"),
   created_at: timestamp("created_at").defaultNow(),
   user_id: integer("user_id").references(() => users.id),
 });

@@ -3,6 +3,7 @@ import { db } from "../db/connection";
 import { translations } from "../db/schema";
 import { TranslationRequest } from "../types/translation.types";
 import { AppError } from "../utils/AppError";
+import { eq, and } from "drizzle-orm";
 
 export async function translateText(data: TranslationRequest, userId?: number) {
   const {
@@ -13,6 +14,34 @@ export async function translateText(data: TranslationRequest, userId?: number) {
     formality,
   } = data;
 
+  // bucket formality into a string key
+  const formalityBucket =
+    formality <= 0.33 ? "formal" : formality <= 0.66 ? "neutral" : "colloquial";
+
+  // cache lookup
+  const cached = await db
+    .select()
+    .from(translations)
+    .where(
+      and(
+        eq(translations.original_text, original_text),
+        eq(translations.source_language, source_language),
+        eq(translations.target_language, target_language),
+        eq(translations.dialect, dialect),
+        eq(translations.formality, formalityBucket),
+      ),
+    )
+    .limit(1);
+
+  if (cached.length > 0) {
+    return {
+      translation: cached[0].translated_text,
+      db_record: cached[0],
+      cache_hit: true,
+    };
+  }
+
+  // cache miss (openai call)
   let formalityText = "";
 
   if (formality <= 0.33) {
@@ -56,6 +85,7 @@ Output ONLY the translated text.`,
       source_language,
       target_language,
       dialect,
+      formality: formalityBucket,
       user_id: userId ?? null,
     })
     .returning();
@@ -63,5 +93,6 @@ Output ONLY the translated text.`,
   return {
     translation: translated_text,
     db_record: inserted[0],
+    cache_hit: false,
   };
 }
