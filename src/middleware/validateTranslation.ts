@@ -7,7 +7,7 @@ const translationSchema = z.object({
     .string()
     .trim()
     .min(1, "Text cannot be empty")
-    .max(500, "Text must be under 1500 characters"),
+    .max(1500, "Text must be under 1500 characters"),
   source_language: z.string().trim().min(1),
   target_language: z.string().trim().min(1),
   dialect: z.string().trim().min(1),
